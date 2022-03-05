@@ -9,16 +9,15 @@ class User(models.Model):
     email = models.EmailField()
     address = models.TextField()
     comment = models.TextField()
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
     join_date = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now_add=True)
+    
 
     def __str__(self):
         return self.contact
 
 class Amount_info(models.Model):
     user = models.ForeignKey(User,on_delete = models.CASCADE, related_name="user")
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-
+    amount = models.DecimalField(max_digits=20, decimal_places=2)
+    join_date = models.DateTimeField(auto_now_add=True)
     def __str__(self):
         return self.amount

@@ -4,10 +4,10 @@ from cowapp.models import *
 
 
 class UserAdmin(admin.ModelAdmin):
-    list_display = ['id','name','contact','email','address','comment','amount']
+    list_display = ['id','name','contact','email','address','comment']
 admin.site.register(User,UserAdmin)
 
 class Amount_infoAdmin(admin.ModelAdmin):
-    list_display = ['id','amount','user']
+    list_display = ['id','amount','user','join_date']
 
 admin.site.register(Amount_info,Amount_infoAdmin)
