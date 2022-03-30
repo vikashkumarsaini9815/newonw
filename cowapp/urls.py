@@ -6,9 +6,8 @@ from django.conf.urls.static import static
 
 
 urlpatterns = [
-    path("donate_user/", Donation.as_view(),name='donation'),
-    
-    
+    path("donate_user/", Donation.as_view(), name='donation'),
+    path("payment/", Order_payment.as_view(), name="payment"),   
     ]        
 urlpatterns += static(settings.STATIC_URL,document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) 

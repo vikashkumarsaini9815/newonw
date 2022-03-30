@@ -12,4 +12,11 @@ class UserSerializer(serializers.ModelSerializer):
     user=Amount_infoSerializer(many=True, read_only=True)
     class Meta:
         model = User
-        fields = ['id', 'name', 'contact', 'email', 'address', 'comment', 'join_date', 'user']
+        fields = ['id', 'name', 'contact', 'email', 'address', 'join_date', 'user']
+
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = "__all__"

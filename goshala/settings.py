@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import os
+import razorpay
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,6 +28,11 @@ SECRET_KEY = 'django-insecure-t2yd15#o5$huiocsjoojsrr0)x+j%h=-dgwd(7=7j#%eg()rjs
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
+
+# rozerpay
+
+RAZORPAY_KEY_ID = "rzp_live_Ekvd5mHS07WMMY"
+RAZORPAY_KEY_SECRET = "wBvQwEWZvkgcvicD0BMoGzDv"
 
 
 # Application definition
@@ -143,6 +149,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
+   
 ]
 
 
