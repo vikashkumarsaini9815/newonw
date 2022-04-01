@@ -10,21 +10,21 @@ from .constants import PaymentStatus
 
 class User(models.Model):
     name = models.CharField(max_length=255, null = True, blank = True)
-    contact = models.CharField(max_length=12, blank=True, unique=True)
-    email = models.EmailField()
-    address = models.TextField()
+    contact = models.CharField(max_length=12, unique=True)
+    email = models.EmailField(null = True, blank = True)
+    address = models.TextField(null = True, blank = True)
     join_date = models.DateTimeField(auto_now_add=True)
     
 
     def __str__(self):
         return self.contact
 
-class Amount_info(models.Model):
-    user = models.ForeignKey(User,on_delete = models.CASCADE, related_name="user")
-    amount = models.DecimalField(max_digits=20, decimal_places=2)
-    join_date = models.DateTimeField(auto_now_add=True)
-    def __str__(self):
-        return self.amount
+# class Amount_info(models.Model):
+#     user = models.ForeignKey(User,on_delete = models.CASCADE, related_name="user")
+#     amount = models.DecimalField(max_digits=20, decimal_places=2)
+#     join_date = models.DateTimeField(auto_now_add=True)
+#     def __str__(self):
+#         return self.amount
 
 
 
@@ -33,7 +33,7 @@ class Amount_info(models.Model):
 
 
 class Order(models.Model):
-    name = CharField(_("Customer Name"), max_length=254, blank=False, null=False)
+    user = models.ForeignKey(User,on_delete = models.CASCADE, related_name="user")
     amount = models.FloatField(_("Amount"), null=False, blank=False)
     status = CharField(
         _("Payment Status"),
@@ -51,6 +51,6 @@ class Order(models.Model):
     signature_id = models.CharField(
         _("Signature ID"), max_length=128, null=False, blank=False
     )
-
+    join_date = models.DateTimeField(auto_now_add=True)
     def __str__(self):
-        return f"{self.id}-{self.name}-{self.status}"
+        return f"{self.id}-{self.amount}-{self.status}"
