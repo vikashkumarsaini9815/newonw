@@ -9,12 +9,12 @@ from django.core.exceptions import ObjectDoesNotExist
 import sys
 import razorpay
 from goshala import settings
-import requests
-import json
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponseBadRequest
 
 # Create your views here.
 
-client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+razorpay_client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 
 
 
@@ -38,7 +38,7 @@ class Order_payment(APIView):
         
         try:            
             user = User.objects.get(contact=contact)
-            razorpay_order = client.order.create(
+            razorpay_order = razorpay_client.order.create(
             {"amount": int(amount) * 100, "currency": "INR", "payment_capture": "1"})
             order_ID = razorpay_order['id']
             order_data = Order.objects.create(user=user, amount=amount,provider_order_id=[order_ID])
@@ -48,7 +48,7 @@ class Order_payment(APIView):
             
         except:
             U = User.objects.create(name = name, contact = contact, email = email, address = address, )
-            razorpay_order = client.order.create(
+            razorpay_order = razorpay_client.order.create(
             {"amount": int(amount) * 100, "currency": "INR", "payment_capture": "1"})
             order_ID = razorpay_order['id']
             order_data = Order.objects.create(user=U, amount=amount,provider_order_id=[order_ID])
@@ -60,46 +60,89 @@ class Order_payment(APIView):
         # user = User.objects.get(contact=contact)
         # amountfield = Amount_info.objects.create(user=user, amount=amount)
         # return Response({"success":True, "message":"add amount"}, status=status.HTTP_201_CREATED)
+
+
+# we need to csrf_exempt this url as
+# POST request will be made by Razorpay
+# and it won't have the csrf token.
+# @csrf_exempt
+# def paymenthandler(request):
+ 
+#     # only accept POST request.
+#     if request.method == "POST":
+#         try:
+           
+#             # get the required parameters from post request.
+#             payment_id = request.POST.get('razorpay_payment_id', '')
+#             razorpay_order_id = request.POST.get('razorpay_order_id', '')
+#             signature = request.POST.get('razorpay_signature', '')
+#             params_dict = {
+#                 'razorpay_order_id': razorpay_order_id,
+#                 'razorpay_payment_id': payment_id,
+#                 'razorpay_signature': signature
+#             }
+ 
+#             # verify the payment signature.
+#             result = razorpay_client.utility.verify_payment_signature(
+#                 params_dict)
+#             if result is None:
+#                 amount = 20000  # Rs. 200
+#                 try:
+ 
+#                     # capture the payemt
+#                     razorpay_client.payment.capture(payment_id, amount)
+ 
+#                     # render success page on successful caputre of payment
+#                     return render(request, 'paymentsuccess.html')
+#                 except:
+ 
+#                     # if there is an error while capturing payment.
+#                     return render(request, 'paymentfail.html')
+#             else:
+ 
+#                 # if signature verification fails.
+#                 return render(request, 'paymentfail.html')
+#         except:
+ 
+#             # if we don't find the required parameters in POST data
+#             return HttpResponseBadRequest()
+#     else:
+#        # if other than POST request is made.
+#         return HttpResponseBadRequest()
+            
+
+
+
+class Paymenthandler(APIView):
+    def post (self, request, formate = None):
+        data = request.data
+        razorpay_payment_id = data['razorpay_payment_id']
+        razorpay_order_id = data['razorpay_order_id']
+        razorpay_signature = data['razorpay_signature']
+        params_dict = {
+                'razorpay_order_id': razorpay_order_id,
+                'razorpay_payment_id': razorpay_payment_id,
+                'razorpay_signature': razorpay_signature
+            }
+
+         
+
+        # verify the payment signature.
+        result = razorpay_client.utility.verify_payment_signature(
+            params_dict)
+        print("check 1", result)
+        if result is True:
+            return_data = {"success":"True","message":"Your payment is successfully"}
+            return Response(return_data, status=status.HTTP_201_CREATED)
+
+        elif result is not True:
+            return_data = {"success":"False","message":"Your payment is Failed"}
+            return Response(return_data)
+
             
         
-            
 
 
-
-
-
-# def order_payment(request):
-#     if request.method == "POST":
-#         name = request.POST.get("name")
-#         amount = request.POST.get("amount")
-        # client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
-        # razorpay_order = client.order.create(
-        #     {"amount": int(amount) * 100, "currency": "INR", "payment_capture": "1"}
-        # )
-#         print(razorpay_order)
-#         order = Order.objects.create(
-#             name=name, amount=amount, provider_order_id=payment_order["id"]
-#         
-
-
-
-# class Order_payment(APIView):
-#     def post(self, request,formate = None):
-#         data = request.data
-#         name = data['name']
-#         amount = data['amount']
-#         client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
-#         razorpay_order = client.order.create(
-#             {"amount": int(amount) * 100, "currency": "INR", "payment_capture": "1"}
-#         )
-#         id = razorpay_order["id"]
-#         order = Order.objects.create(
-#             name=name, amount=amount, provider_order_id=[id]
-#         )
-#         order.save()
-#         data_order_id={"order_ID":id}
-#         print(data_order_id)
-#         return Response(data_order_id)
 
         
 
