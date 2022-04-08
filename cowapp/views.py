@@ -116,29 +116,39 @@ class Order_payment(APIView):
 class Paymenthandler(APIView):
     def post (self, request, formate = None):
         data = request.data
-        razorpay_payment_id = data['razorpay_payment_id']
-        razorpay_order_id = data['razorpay_order_id']
-        razorpay_signature = data['razorpay_signature']
-        params_dict = {
-                'razorpay_order_id': razorpay_order_id,
-                'razorpay_payment_id': razorpay_payment_id,
-                'razorpay_signature': razorpay_signature
-            }
+        try:
+            razorpay_payment_id = data['razorpay_payment_id']
+            razorpay_order_id = data['razorpay_order_id']
+            razorpay_signature = data['razorpay_signature']
+            params_dict = {
+                    'razorpay_order_id': razorpay_order_id,
+                    'razorpay_payment_id': razorpay_payment_id,
+                    'razorpay_signature': razorpay_signature
+                }
 
-         
+            
+            try:
+                # verify the payment signature.
+                result = razorpay_client.utility.verify_payment_signature(
+                    params_dict)
+                print("check 1", result)
+                if result is True:
+                    
+                    # data_save = Order.objects.create(user = od_id, payment_id= razorpay_payment_id, signature_id =  razorpay_signature)
+                    return_data = {"success":"True","message":"Your payment is successfully"}
+                    return Response(return_data, status=status.HTTP_201_CREATED)
 
-        # verify the payment signature.
-        result = razorpay_client.utility.verify_payment_signature(
-            params_dict)
-        print("check 1", result)
-        if result is True:
-            return_data = {"success":"True","message":"Your payment is successfully"}
-            return Response(return_data, status=status.HTTP_201_CREATED)
+                else :
+                    return_data = {"success":"False", 'error': 'Something went wrong'}
+                    return Response(return_data)
 
-        elif result is not True:
-            return_data = {"success":"False","message":"Your payment is Failed"}
+            except:
+
+                return_data = {"success": False, "message":"SignatureVerificationError"}
+                return Response(return_data)
+        except:
+            return_data = {"success": False,"message":"bad request"}
             return Response(return_data)
-
             
         
 
