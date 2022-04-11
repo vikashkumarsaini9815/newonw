@@ -41,7 +41,7 @@ class Order_payment(APIView):
             razorpay_order = razorpay_client.order.create(
             {"amount": int(amount) * 100, "currency": "INR", "payment_capture": "1"})
             order_ID = razorpay_order['id']
-            order_data = Order.objects.create(user=user, amount=amount,provider_order_id=[order_ID])
+            order_data = Order.objects.create(user=user, amount=amount,provider_order_id=order_ID)
             order_data.save()
             return_data = {"name":name, "contact":contact, "order_id":order_ID}
             return Response(return_data, status=status.HTTP_201_CREATED)
@@ -51,7 +51,7 @@ class Order_payment(APIView):
             razorpay_order = razorpay_client.order.create(
             {"amount": int(amount) * 100, "currency": "INR", "payment_capture": "1"})
             order_ID = razorpay_order['id']
-            order_data = Order.objects.create(user=U, amount=amount,provider_order_id=[order_ID])
+            order_data = Order.objects.create(user=U, amount=amount,provider_order_id=order_ID)
             order_data.save()
             return_data1 = {"name":name, "contact":contact, "order_id":order_ID}
             return Response(return_data1, status=status.HTTP_201_CREATED)
@@ -118,8 +118,8 @@ class Paymenthandler(APIView):
         data = request.data
         try:
             razorpay_payment_id = data['razorpay_payment_id']
-            razorpay_order_id = data['razorpay_order_id']
-            razorpay_signature = data['razorpay_signature']
+            razorpay_order_id = data.get['razorpay_order_id',None]
+            razorpay_signature = data.get['razorpay_signature',None]
             params_dict = {
                     'razorpay_order_id': razorpay_order_id,
                     'razorpay_payment_id': razorpay_payment_id,
