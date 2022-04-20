@@ -115,7 +115,10 @@ class Order_payment(APIView):
 
 class Paymenthandler(APIView):
     def post (self, request, formate = None):
-        data = request.data
+        data = request.data["response"]
+        print("franted data" ,data)
+        print(type(data))
+
         try:
             razorpay_payment_id = data['razorpay_payment_id']
             razorpay_order_id = data.get['razorpay_order_id',None]
